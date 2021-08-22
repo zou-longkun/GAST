@@ -42,20 +42,26 @@ def get_graph_feature(x, args, k=20, idx=None):
     return feature
 
 
+def l2_norm(input, axit=1):
+    norm = torch.norm(input, 2, axit, True)
+    output = torch.div(input, norm)
+    return output
+
+
 class conv_2d(nn.Module):
     def __init__(self, in_ch, out_ch, kernel, activation='relu', bias=True):
         super(conv_2d, self).__init__()
         if activation == 'relu':
             self.conv = nn.Sequential(
                 nn.Conv2d(in_ch, out_ch, kernel_size=kernel, bias=bias),
-                #nn.BatchNorm2d(out_ch),
+                # nn.BatchNorm2d(out_ch),
                 nn.InstanceNorm2d(out_ch),
                 nn.ReLU(inplace=True)
             )
         elif activation == 'leakyrelu':
             self.conv = nn.Sequential(
                 nn.Conv2d(in_ch, out_ch, kernel_size=kernel, bias=bias),
-                #nn.BatchNorm2d(out_ch),
+                # nn.BatchNorm2d(out_ch),
                 nn.InstanceNorm2d(out_ch),
                 nn.LeakyReLU(negative_slope=0.2, inplace=True)
             )
@@ -66,7 +72,7 @@ class conv_2d(nn.Module):
 
 
 class fc_layer(nn.Module):
-    def __init__(self, in_ch, out_ch, bn=True, activation='relu', bias=True):
+    def __init__(self, in_ch, out_ch, bn=False, activation='relu', bias=True):
         super(fc_layer, self).__init__()
         if activation == 'relu':
             self.ac = nn.ReLU(inplace=True)
@@ -80,11 +86,12 @@ class fc_layer(nn.Module):
             )
         else:
             self.fc = nn.Sequential(
-                nn.Linear(in_ch, out_ch),
+                nn.Linear(in_ch, out_ch, bias=bias),
                 self.ac
             )
 
     def forward(self, x):
+        x = l2_norm(x, 1)
         x = self.fc(x)
         return x
 
@@ -297,9 +304,9 @@ class class_classifier(nn.Module):
         activate = 'leakyrelu' if args.model == 'dgcnn' else 'relu'
         bias = True if args.model == 'dgcnn' else False
 
-        self.mlp1 = fc_layer(input_dim, 512, bias=bias, activation=activate, bn=False)
+        self.mlp1 = fc_layer(input_dim, 512, bias=bias, activation=activate, bn=True)
         self.dp1 = nn.Dropout(p=args.dropout)
-        self.mlp2 = fc_layer(512, 256, bias=bias, activation=activate, bn=False)
+        self.mlp2 = fc_layer(512, 256, bias=True, activation=activate, bn=True)
         self.dp2 = nn.Dropout(p=args.dropout)
         self.mlp3 = nn.Linear(256, num_class)
 
@@ -313,7 +320,7 @@ class class_classifier(nn.Module):
 class ssl_classifier(nn.Module):
     def __init__(self, args, input_dim, num_class):
         super(ssl_classifier, self).__init__()
-        self.mlp1 = fc_layer(input_dim, 256, bn=False)
+        self.mlp1 = fc_layer(input_dim, 256)
         self.dp1 = nn.Dropout(p=args.dropout)
         self.mlp2 = nn.Linear(256, num_class)
 
@@ -340,8 +347,8 @@ class domain_classifier(nn.Module):
         activate = 'leakyrelu' if args.model == 'dgcnn' else 'relu'
         bias = True if args.model == 'dgcnn' else False
 
-        self.mlp1 = fc_layer(input_dim, 512, bias=bias, activation=activate, bn=False)
-        self.mlp2 = fc_layer(512, 256, bias=True, activation=activate, bn=False)
+        self.mlp1 = fc_layer(input_dim, 512, bias=bias, activation=activate, bn=True)
+        self.mlp2 = fc_layer(512, 256, bias=True, activation=activate, bn=True)
         self.mlp3 = nn.Linear(256, num_class)
 
     def forward(self, x):
@@ -357,9 +364,9 @@ class DecoderFC(nn.Module):
         activate = 'leakyrelu' if args.model == 'dgcnn' else 'relu'
         bias = True if args.model == 'dgcnn' else False
 
-        self.mlp1 = fc_layer(input_dim, 512, bias=bias, activation=activate, bn=False)
-        self.mlp2 = fc_layer(512, 512, bias=True, activation=activate, bn=False)
-        self.mlp3 = nn.Linear(512, args.output_pts*3)
+        self.mlp1 = fc_layer(input_dim, 512, bias=bias, activation=activate, bn=True)
+        self.mlp2 = fc_layer(512, 512, bias=True, activation=activate, bn=True)
+        self.mlp3 = nn.Linear(512, args.output_pts * 3)
 
     def forward(self, x):
         x = self.mlp1(x)
