@@ -1,7 +1,7 @@
 # Geometry-Aware Self-Training for Unsupervised Domain Adaptation Object Point Clouds 
 
 <p align="center"> 
-    <img src="./resources/model.png" width="400">
+    <img src="./resources/model.png" width="800">
 </p> 
  
  ### Introduction
@@ -42,8 +42,8 @@ Please cite this paper if you want to use it in your work,
  
 ### Shape Reconstruction
 <p align="center"> 
-    <img src="./resources/rot.png">
-    <img src="./resources/loc.png">
+    <img src="./resources/rot.png" width="400">
+    <img src="./resources/loc.png" width="400">
 </p> 
  
  
