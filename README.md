@@ -1,7 +1,7 @@
 # Geometry-Aware Self-Training for Unsupervised Domain Adaptation Object Point Clouds 
 
 <p align="center"> 
-    <img src="./resources/model.png" width="800">
+    <img src="./resources/model.png" width="1280">
 </p> 
  
  ### Introduction
