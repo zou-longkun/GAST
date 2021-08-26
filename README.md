@@ -1,4 +1,4 @@
-# Self-Supervised Learning for Domain Adaptation on Point-Clouds
+# Geometry-Aware Self-Training for Unsupervised Domain Adaptation Object Point Clouds 
 
 <p align="center"> 
     <img src="./resources/model.png" width="400">
@@ -32,17 +32,18 @@ python train_Norm.py
 ### Citation
 Please cite this paper if you want to use it in your work,
 ```
-@article{achituve2020self,
-  title={Self-Supervised Learning for Domain Adaptation on Point Clouds},
-  author={Achituve, Idan and Maron, Haggai and Chechik, Gal},
-  journal={arXiv preprint arXiv:2003.12641},
-  year={2020}
+@article{gast2021,
+  title={Geometry-Aware Self-Training for Unsupervised Domain Adaptation Object Point Clouds },
+  author={Longkun Zou, Hui Tang, Ke Chen, Kui Jia},
+  journal={Proceedings of the IEEE conference on computer vision and pattern recognition},
+  year={2021}
 }
 ```
  
 ### Shape Reconstruction
 <p align="center"> 
-    <img src="./resources/reconstruction.png">
+    <img src="./resources/rot.png">
+    <img src="./resources/loc.png">
 </p> 
  
  
