@@ -42,8 +42,8 @@ Please cite this paper if you want to use it in your work,
  
 ### Rotation Angle and Distortion Location prediction
 <p align="center"> 
-    <img src="./resources/rot.png" width="400">
-    <img src="./resources/loc.png" width="400">
+    <img src="./resources/rot.png" width="200">
+    <img src="./resources/loc.png" width="200">
 </p> 
  
  
