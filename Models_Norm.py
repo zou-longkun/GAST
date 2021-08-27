@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils import trans_norm
+from utils.trans_norm import TransNorm2d
 
 K = 20
 
@@ -57,7 +57,7 @@ class conv_2d(nn.Module):
                 nn.Conv2d(in_ch, out_ch, kernel_size=kernel, bias=bias),
                 # nn.BatchNorm2d(out_ch),
                 # nn.InstanceNorm2d(out_ch),
-                trans_norm.TransNorm2d(out_ch),
+                TransNorm2d(out_ch),
                 nn.ReLU(inplace=True)
             )
         elif activation == 'leakyrelu':
@@ -65,7 +65,7 @@ class conv_2d(nn.Module):
                 nn.Conv2d(in_ch, out_ch, kernel_size=kernel, bias=bias),
                 # nn.BatchNorm2d(out_ch),
                 # nn.InstanceNorm2d(out_ch),
-                trans_norm.TransNorm2d(out_ch),
+                TransNorm2d(out_ch),
                 nn.LeakyReLU(negative_slope=0.2, inplace=True)
             )
 
