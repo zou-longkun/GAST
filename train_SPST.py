@@ -108,10 +108,10 @@ else:
 # ==================
 if args.model == 'pointnet':
     model = PointNet(args)
-    model.load_state_dict(torch.load('./experiments/DefRec_PCM/model.ptpointnet'))
+    model.load_state_dict(torch.load('./experiments/GAST/model.ptpointnet'))
 elif args.model == 'dgcnn':
     model = DGCNN(args)
-    model.load_state_dict(torch.load('./experiments/DefRec_PCM/' + args.model_file))
+    model.load_state_dict(torch.load('./experiments/GAST/' + args.model_file))
 else:
     raise Exception("Not implemented")
 

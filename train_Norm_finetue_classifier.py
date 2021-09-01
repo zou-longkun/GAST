@@ -14,7 +14,7 @@ import sklearn.metrics as metrics
 import argparse
 import copy
 from data.dataloader_Norm import ScanNet, ModelNet, ShapeNet, label_to_idx, NUM_POINTS
-from Models_Norm import PointNet, DGCNN, PointGrid
+from Models_Norm import PointNet, DGCNN
 from utils import pc_utils_Norm, loss, log
 import DefRec
 import RotCls
