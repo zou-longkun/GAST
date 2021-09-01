@@ -26,6 +26,8 @@ python download.py
 Run GAST on both source and target
 ```
 python train_Norm.py 
+Then
+python train_SPST.py
 ```
 
 
