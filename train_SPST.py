@@ -74,6 +74,7 @@ parser.add_argument('--grl_weight', type=float, default=0.5, help='weight of the
 parser.add_argument('--DefRec_weight', type=float, default=0.5, help='weight of the DefRec loss')
 parser.add_argument('--DefCls_weight', type=float, default=0.5, help='weight of the DefCls loss')
 parser.add_argument('--PosReg_weight', type=float, default=0.5, help='weight of the PosReg loss')
+parser.add_argument('--output_pts', type=int, default=512, help='number of decoder points')
 parser.add_argument('--mixup_params', type=float, default=1.0, help='a,b in beta distribution')
 parser.add_argument('--lr', type=float, default=1e-3, help='learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='SGD momentum')
@@ -229,9 +230,9 @@ class DataLoad(Dataset):
             self.val_ind = np.asarray([i for i in range(self.num_examples) if i % 10 >= 8]).astype(np.int)
             np.random.shuffle(self.val_ind)
 
-        io.cprint("number of " + partition + " examples in modelnet : " + str(len(self.pc)))
+        io.cprint("number of " + partition + " examples in trgt_dataset : " + str(len(self.pc)))
         unique, counts = np.unique(self.label, return_counts=True)
-        io.cprint("Occurrences count of classes in modelnet " + partition + " set: " + str(dict(zip(unique, counts))))
+        io.cprint("Occurrences count of classes in trgt_dataset " + partition + " set: " + str(dict(zip(unique, counts))))
 
     def __getitem__(self, item):
         pointcloud = np.copy(self.pc[item])
@@ -333,6 +334,7 @@ io.cprint("Test confusion matrix:")
 io.cprint('\n' + str(trgt_conf_mat))
 if trgt_test_acc > 0.9:
     threshold = 0.95
+trgt_new_best_val_acc = 0
 for i in range(10):
     print(threshold)
     # model = copy.deepcopy(best_model)
@@ -340,9 +342,10 @@ for i in range(10):
     trgt_new_data = DataLoad(io, trgt_select_data)
     trgt_new_train_loader = DataLoader(trgt_new_data, num_workers=NWORKERS, batch_size=args.batch_size, drop_last=True)
     self_train(trgt_new_train_loader, src_train_loader, src_val_loader, trgt_val_loader, model)
-    new_trgt_test_acc, _, _ = test(trgt_test_loader, model, "Target", "Test", 0)
-    if new_trgt_test_acc > trgt_test_acc:
-        trgt_test_acc = new_trgt_test_acc
+    trgt_new_val_acc, _, _ = test(src_val_loader, model, "Source", "Val", 0)
+    test(trgt_test_loader, model, "Target", "Test", 0)
+    if trgt_new_val_acc > trgt_new_best_val_acc:
+        trgt_new_best_val_acc = trgt_new_val_acc
         best_model = io.save_model(model)
     threshold += 5e-3
 

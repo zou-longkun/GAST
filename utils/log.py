@@ -31,7 +31,11 @@ class IOStream():
     def save_model(self, model):
         path = self.path + '/model.pt' + self.args.model
         best_model = copy.deepcopy(model)
-        torch.save(model.state_dict(), path)
+        # torch.save(model.state_dict(), path)
+        if len(self.args.gpus) > 1:
+            torch.save(model.module.state_dict(), path)
+        else:
+            torch.save(model.state_dict(), path)
         return best_model
 
     def save_conf_mat(self, conf_matrix, fname, domain_set):

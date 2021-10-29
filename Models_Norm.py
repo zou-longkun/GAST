@@ -57,7 +57,8 @@ class conv_2d(nn.Module):
                 nn.Conv2d(in_ch, out_ch, kernel_size=kernel, bias=bias),
                 # nn.BatchNorm2d(out_ch),
                 # nn.InstanceNorm2d(out_ch),
-                TransNorm2d(out_ch),
+                # TransNorm2d(out_ch),
+                nn.LayerNorm([out_ch, 1024, 20]),
                 nn.ReLU(inplace=True)
             )
         elif activation == 'leakyrelu':
@@ -65,7 +66,8 @@ class conv_2d(nn.Module):
                 nn.Conv2d(in_ch, out_ch, kernel_size=kernel, bias=bias),
                 # nn.BatchNorm2d(out_ch),
                 # nn.InstanceNorm2d(out_ch),
-                TransNorm2d(out_ch),
+                # TransNorm2d(out_ch),
+                nn.LayerNorm([out_ch, 1024, 20]),
                 nn.LeakyReLU(negative_slope=0.2, inplace=True)
             )
 
@@ -84,7 +86,8 @@ class fc_layer(nn.Module):
         if bn:
             self.fc = nn.Sequential(
                 nn.Linear(in_ch, out_ch, bias=bias),
-                nn.BatchNorm1d(out_ch),
+                # nn.BatchNorm1d(out_ch),
+                nn.LayerNorm(out_ch),
                 self.ac
             )
         else:

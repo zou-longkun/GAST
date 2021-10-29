@@ -360,6 +360,14 @@ for epoch in range(args.epochs):
                 src_print_losses['total'] += loss.item()
                 loss.backward()
 
+            if args.apply_GRL:
+                src_data = src_data_orig.clone()
+                src_logits = model(src_data, activate_DefRec=False)
+                loss = args.grl_weight * criterion(src_logits["domain_cls"], src_domain_label)
+                src_print_losses['GRL'] += loss.item() * batch_size
+                src_print_losses['total'] += loss.item() * batch_size
+                loss.backward()
+
             if args.apply_PCM:
                 src_data = src_data_orig.clone()
                 src_data, mixup_vals = PCM.mix_shapes(args, src_data, src_label)
@@ -369,21 +377,14 @@ for epoch in range(args.epochs):
                 src_print_losses['total'] += loss.item() * batch_size
                 loss.backward()
 
-            if args.apply_GRL:
+            else:
                 src_data = src_data_orig.clone()
+                # predict with undistorted shape
                 src_logits = model(src_data, activate_DefRec=False)
-                loss = args.grl_weight * criterion(src_logits["domain_cls"], src_domain_label)
-                src_print_losses['GRL'] += loss.item() * batch_size
+                loss = args.cls_weight * criterion(src_logits["cls"], src_label)
+                src_print_losses['cls'] += loss.item() * batch_size
                 src_print_losses['total'] += loss.item() * batch_size
                 loss.backward()
-
-            src_data = src_data_orig.clone()
-            # predict with undistorted shape
-            src_logits = model(src_data, activate_DefRec=False)
-            loss = args.cls_weight * criterion(src_logits["cls"], src_label)
-            src_print_losses['cls'] += loss.item() * batch_size
-            src_print_losses['total'] += loss.item() * batch_size
-            loss.backward()
 
             src_count += batch_size
 
