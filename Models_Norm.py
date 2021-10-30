@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from utils.trans_norm import TransNorm2d
+from torch.autograd import Function
 
 K = 20
 
@@ -167,7 +168,7 @@ class PointNet(nn.Module):
         self.DefRec = RegionReconstruction(args, num_f_prev + 1024)
         self.normreg_C = nn.Conv1d(1024, 4, kernel_size=1, bias=False)
 
-    def forward(self, x, activate_DefRec=False):
+    def forward(self, x, alpha=0, activate_DefRec=False):
         num_points = x.size(2)
         x = torch.unsqueeze(x, dim=3)
 
@@ -196,7 +197,9 @@ class PointNet(nn.Module):
         x = x5_pool.squeeze(dim=2)  # batchsize*1024
 
         cls_logits["cls"] = self.cls_C(x)
-        cls_logits["domain_cls"] = self.domain_C(x)
+        if alpha is not 0:
+            reverse_x = ReverseLayerF.apply(x, alpha)
+            cls_logits["domain_cls"] = self.domain_C(reverse_x)
         cls_logits["rot_cls1"] = self.rotcls_C1(x)
         cls_logits["rot_cls2"] = self.rotcls_C2(x)
         cls_logits["def_cls"] = self.defcls_C(x)
@@ -239,7 +242,7 @@ class DGCNN(nn.Module):
 
         self.DefRec = RegionReconstruction(args, num_f_prev + 1024)
 
-    def forward(self, x, activate_DefRec=False):
+    def forward(self, x, alpha=0, activate_DefRec=False):
         batch_size = x.size(0)
         num_points = x.size(2)
         cls_logits = {}
@@ -288,7 +291,9 @@ class DGCNN(nn.Module):
         # x = x5_pool
 
         cls_logits["cls"] = self.cls_C(x)
-        cls_logits["domain_cls"] = self.domain_C(x)
+        if alpha is not 0:
+            reverse_x = ReverseLayerF.apply(x, alpha)
+            cls_logits["domain_cls"] = self.domain_C(reverse_x)
         cls_logits["rot_cls1"] = self.rotcls_C1(x)
         cls_logits["rot_cls2"] = self.rotcls_C2(x)
         cls_logits["def_cls"] = self.defcls_C(x)
@@ -409,3 +414,15 @@ class RegionReconstruction(nn.Module):
         x = F.leaky_relu(self.bn3(self.conv3(x)), negative_slope=0.2)
         x = self.conv4(x)
         return x.permute(0, 2, 1)
+
+
+class ReverseLayerF(Function):
+    @staticmethod
+    def forward(ctx, x, alpha):
+        ctx.alpha = alpha
+        return x.view_as(x)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        output = grad_output.neg() * ctx.alpha
+        return output, None
