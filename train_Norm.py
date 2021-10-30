@@ -265,6 +265,7 @@ trgt_val_loss_list = []
 
 for epoch in range(args.epochs):
     model.train()
+    len_dataloader = min(len(src_train_loader), len(trgt_train_loader))
 
     # init data structures for saving epoch stats
     cls_type = 'mixup' if args.apply_PCM else 'cls'
@@ -361,8 +362,10 @@ for epoch in range(args.epochs):
                 loss.backward()
 
             if args.apply_GRL:
+                p = float(batch_idx + epoch * len_dataloader) / args.epochs / len_dataloader
+                alpha = 2. / (1. + np.exp(-10 * p)) - 1
                 src_data = src_data_orig.clone()
-                src_logits = model(src_data, activate_DefRec=False)
+                src_logits = model(src_data, alpha, activate_DefRec=False)
                 loss = args.grl_weight * criterion(src_logits["domain_cls"], src_domain_label)
                 src_print_losses['GRL'] += loss.item() * batch_size
                 src_print_losses['total'] += loss.item() * batch_size
@@ -447,8 +450,10 @@ for epoch in range(args.epochs):
                 loss.backward()
 
             if args.apply_GRL:
-                trgt_data = trgt_data_orig.clone()
-                trgt_logits = model(trgt_data, activate_DefRec=False)
+                p = float(batch_idx + epoch * len_dataloader) / args.epochs / len_dataloader
+                alpha = 2. / (1. + np.exp(-10 * p)) - 1
+                src_data = src_data_orig.clone()
+                src_logits = model(src_data, alpha, activate_DefRec=False)
                 loss = args.grl_weight * criterion(trgt_logits['domain_cls'], trgt_domain_label)
                 trgt_print_losses['GRL'] += loss.item() * batch_size
                 trgt_print_losses['total'] += loss.item() * batch_size
