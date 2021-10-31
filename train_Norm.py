@@ -477,7 +477,7 @@ for epoch in range(args.epochs):
         opt.step()
         batch_idx += 1
 
-        scheduler.step()
+    scheduler.step()
 
     # print progress
     src_print_losses = {k: v * 1.0 / src_count for (k, v) in src_print_losses.items()}
