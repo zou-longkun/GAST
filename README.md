@@ -34,10 +34,11 @@ python train_SPST.py
 ### Citation
 Please cite this paper if you want to use it in your work,
 ```
-@article{gast2021,
-  title={Geometry-Aware Self-Training for Unsupervised Domain Adaptation Object Point Clouds },
-  author={Longkun Zou, Hui Tang, Ke Chen, Kui Jia},
-  journal={Proceedings of the IEEE conference on computer vision and pattern recognition},
+@inproceedings{zou2021geometry,
+  title={Geometry-Aware Self-Training for Unsupervised Domain Adaptation on Object Point Clouds},
+  author={Zou, Longkun and Tang, Hui and Chen, Ke and Jia, Kui},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={6403--6412},
   year={2021}
 }
 ```
